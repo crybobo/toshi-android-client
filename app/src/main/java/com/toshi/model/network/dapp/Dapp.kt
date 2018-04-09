@@ -21,15 +21,15 @@ import android.content.Intent
 import com.squareup.moshi.Json
 import com.toshi.model.local.dapp.DappListItem
 
-data class Dapp(
+open class Dapp(
         @Json(name = "dapp_id")
-        val dappId: Long?,
-        val name: String?,
-        val url: String?,
-        val description: String?,
-        val icon: String?,
-        val cover: String?,
-        val categories: List<Int> = emptyList()
+        open val dappId: Long?,
+        open val name: String?,
+        open val url: String?,
+        open val description: String?,
+        open val icon: String?,
+        open val cover: String?,
+        open val categories: List<Int> = emptyList()
 ) : DappListItem() {
 
     companion object {
