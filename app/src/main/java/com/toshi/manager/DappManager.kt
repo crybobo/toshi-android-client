@@ -17,8 +17,10 @@
 
 package com.toshi.manager
 
+import com.toshi.manager.dappInjection.DappsInjector
 import com.toshi.manager.network.DirectoryInterface
 import com.toshi.manager.network.DirectoryService
+import com.toshi.model.network.dapp.Dapp
 import com.toshi.model.network.dapp.DappResult
 import com.toshi.model.network.dapp.DappSearchResult
 import com.toshi.model.network.dapp.DappSections
@@ -28,12 +30,14 @@ import rx.schedulers.Schedulers
 
 class DappManager(
         private val directoryService: DirectoryInterface = DirectoryService.get(),
+        private val dappsInjector: DappsInjector = DappsInjector(),
         private val scheduler: Scheduler = Schedulers.io()
 ) {
 
     fun getFrontPageDapps(): Single<DappSections> {
         return directoryService
                 .getFrontpageDapps()
+                .map { dappsInjector.addCoinbaseDappToMarketplaceSection(it) }
                 .subscribeOn(scheduler)
     }
 
@@ -49,15 +53,19 @@ class DappManager(
                 .subscribeOn(scheduler)
     }
 
-    fun getAllDappsWithOffset(offset: Int): Single<DappSearchResult> {
+    fun getAllDappsWithOffset(currentDapps: List<Dapp>): Single<DappSearchResult> {
+        val offset = dappsInjector.getDappsOffset(currentDapps)
         return directoryService
                 .getAllDappsWithOffset(offset, 20)
+                .map { dappsInjector.addCoinbaseDappToSearchResult(it, currentDapps) }
                 .subscribeOn(scheduler)
     }
 
-    fun getAllDappsInCategoryWithOffset(categoryId: Int, offset: Int): Single<DappSearchResult> {
+    fun getAllDappsInCategoryWithOffset(categoryId: Int, currentDapps: List<Dapp>): Single<DappSearchResult> {
+        val offset = dappsInjector.getDappsOffset(currentDapps)
         return directoryService
                 .getAllDappsInCategory(categoryId, offset, 20)
+                .map { dappsInjector.addCoinbaseDappToSearchResult(it, currentDapps) }
                 .subscribeOn(scheduler)
     }
 
